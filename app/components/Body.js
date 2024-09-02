@@ -1,82 +1,74 @@
 "use client";
-import { useState, useEffect } from "react";
-import html2canvas from "html2canvas";
+import { useState, useEffect, useRef } from "react";
 
 function Body({ url }) {
   const [iframeSrc, setIframeSrc] = useState("");
   const [prompt, setPrompt] = useState("tu tiên trung quốc");
-  const [alertMessage, setAlertMessage] = useState(""); // For storing the alert message
-  const [alertType, setAlertType] = useState(""); // For storing the alert type (e.g., "success", "error")
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertType, setAlertType] = useState("");
+  const divRef = useRef(null);
 
-  // Set iframe source when URL changes
   useEffect(() => {
     if (url) {
       setIframeSrc(url);
     }
-
-    const handleDoubleClickOrCtrlLeft = (event) => {
-      if (event.type === "dblclick" || (event.type === "keydown" && event.key === "Control" && event.location === 1)) {
-        captureAndSendImage();
-      }
-    };
-
-    window.addEventListener("dblclick", handleDoubleClickOrCtrlLeft);
-    window.addEventListener("keydown", handleDoubleClickOrCtrlLeft);
-
-    return () => {
-      window.removeEventListener("dblclick", handleDoubleClickOrCtrlLeft);
-      window.removeEventListener("keydown", handleDoubleClickOrCtrlLeft);
-    };
   }, [url]);
 
   const handleInputChange = (event) => {
     setPrompt(event.target.value);
   };
 
-  const captureAndSendImage = () => {
-    const iframe = document.querySelector("iframe");
+  const handleTranslateClick = async () => {
+    setAlertMessage("Loading..")
+    console.log("Translate button clicked");
 
-    if (iframe) {
-      html2canvas(iframe.contentDocument.body).then((canvas) => {
-        canvas.toBlob((blob) => {
-          const formData = new FormData();
-          formData.append("image", blob, "screenshot.png");
-          formData.append("prompt", prompt);
+    try {
+      const stream = await navigator.mediaDevices.getDisplayMedia({preferCurrentTab: true});
+      const video = document.createElement("video");
+      video.srcObject = stream;
+      await video.play();
 
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}`, {
-            method: "POST",
-            body: formData,
-          })
-            .then((response) => response.json())
-            .then((data) => {
-              setAlertMessage(data);
-              setAlertType("success");
-              console.log("Success:", data);
-            })
-            .catch((error) => {
-              setAlertMessage("Failed to upload image.");
-              setAlertType("error");
-              console.error("Error:", error);
-            });
-        });
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext("2d").drawImage(video, 0, 0);
+      
+      const imageDataUrl = canvas.toDataURL("image/png");
+
+      // Chuyển đổi data URL thành Blob
+      const res = await fetch(imageDataUrl);
+      const imageBlob = await res.blob();
+
+      const formData = new FormData();
+      formData.append('image', imageBlob, 'screenshot.png');
+      formData.append('prompt', prompt);
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}`, {
+        method: 'POST',
+        body: formData,
       });
+
+      const result = await response.json();
+      if (response.ok) {
+        setAlertMessage(result.response);
+        setAlertType("success");
+      } else {
+        setAlertMessage(result.message);
+        setAlertType("error");
+      }
+
+      // Dừng tất cả các track của stream
+      stream.getTracks().forEach(track => track.stop());
+    } catch (error) {
+      console.error("Error capturing and sending image:", error);
+      setAlertMessage("Failed to capture or send image.");
+      setAlertType("error");
     }
   };
 
   return (
     <div className="p-4">
-      {alertMessage && (
-        <div
-          className={`p-4 mb-4 text-sm rounded-lg ${
-            alertType === "success"
-              ? "bg-blue-100 text-blue-700"
-              : "bg-red-100 text-red-700"
-          }`}
-          role="alert"
-        >
-          {alertMessage}
-        </div>
-      )}
+
       <form className="max-w-sm mx-auto">
         <div className="relative z-0 w-full mb-5 group">
           <input
@@ -96,25 +88,44 @@ function Body({ url }) {
             Mô tả thể loại và ngôn ngữ
           </label>
         </div>
-     
       </form>
-      
+
       {iframeSrc && (
-        <div>
-        <iframe
-          src={iframeSrc}
-          width="100%"
-          height="600px"
-          style={{ border: 'none' }}
-          title="Embedded Content"
-        />
-        <div class="flex justify-center">
-           <button type="button" class="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 my-2">Dịch</button>
+        <div className="myclass" ref={divRef}>
+          <iframe
+            src={iframeSrc}
+            width="100%"
+            height="500px"
+            style={{ border: "none" }}
+            title="Embedded Content"
+          />
+          
+          <div className="flex justify-center">
+                {/* {alertMessage && (
+            <div
+              className={`p-4 mb-4 text-sm rounded-lg ${
+                alertType === "success"
+                  ? "bg-blue-100 text-blue-700"
+                  : "bg-red-100 text-red-700"
+              }`}
+              role="alert"
+            >
+              {alertMessage}
+            </div>
+          )} */}
+           
+            <button
+              type="button"
+              className="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 my-2"
+              onClick={handleTranslateClick}
+            >
+              {alertMessage}
+            </button>
+            
+          </div>
         </div>
-        </div>
-        
       )}
-        </div>
+    </div>
   );
 }
 

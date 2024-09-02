@@ -3,8 +3,9 @@ import { useState, useEffect, useRef } from "react";
 
 function Body({ url }) {
   const [iframeSrc, setIframeSrc] = useState("");
-  const [prompt, setPrompt] = useState("tu tiên trung quốc");
+  const [prompt, setPrompt] = useState("tu tiên");
   const [high, setHigh] = useState("500px");
+  const [row, setRow] = useState("90%");
   const [alertMessage, setAlertMessage] = useState("Click vào đây để Vietsub");
   const [alertType, setAlertType] = useState("");
   const divRef = useRef(null);
@@ -21,6 +22,11 @@ function Body({ url }) {
   const handleInputChange2 = (event) => {
     setHigh(event.target.value);
   };
+
+  const handleInputChange3 = (event) => {
+    setRow(event.target.value);
+  };
+
   const handleTranslateClick = async () => {
     setAlertMessage("Loading...")
     console.log("Translate button clicked");
@@ -70,7 +76,7 @@ function Body({ url }) {
   };
 
   return (
-    <div className="p-4">
+    <div className="p-4" >
       
       {iframeSrc && (
         
@@ -95,11 +101,14 @@ function Body({ url }) {
             htmlFor="prompt"
             className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
           >
-            Mô tả thể loại và ngôn ngữ để AI chọn phong cách dịch
+            Nhập thể loại để AI chọn phong cách dịch
           </label>
         </div>
 
       </form>     
+
+        
+
       <form className="max-w-sm mx-auto">
         <div className="relative z-0 w-64 mb-5 group">
           <input
@@ -116,22 +125,43 @@ function Body({ url }) {
             htmlFor="high"
             className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
           >
-            Chiều cao khung truyện (đơn vị px)
+            Chiều cao của khung truyện (px)
           </label>
-        </div>
-
-        
+        </div>       
       </form>
-      </div>         
 
+      <form className="max-w-sm mx-auto">
+        <div className="relative z-0 w-64 mb-5 group">
+          <input
+            type="text"
+            name="row"
+            id="row"
+            value={row}
+            onChange={handleInputChange3}
+            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+            placeholder=" "
+            required
+          />
+          <label
+            htmlFor="row"
+            className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+          >
+            Chiều rộng của khung truyện (%)
+          </label>
+        </div>       
+      </form>
+        
+
+      </div>         
+      <div className="flex justify-center">
           <iframe
             src={iframeSrc}
-            width="100%"
+            width={row}
             height={high}
             style={{ border: "none" }}
             title="Embedded Content"
           />
-          
+          </div>
           <div className="flex justify-center">
                 {/* {alertMessage && (
             <div

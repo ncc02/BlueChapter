@@ -4,7 +4,8 @@ import { useState, useEffect, useRef } from "react";
 function Body({ url }) {
   const [iframeSrc, setIframeSrc] = useState("");
   const [prompt, setPrompt] = useState("tu tiên trung quốc");
-  const [alertMessage, setAlertMessage] = useState("");
+  const [high, setHigh] = useState("500px");
+  const [alertMessage, setAlertMessage] = useState("Click vào đây để Vietsub");
   const [alertType, setAlertType] = useState("");
   const divRef = useRef(null);
 
@@ -17,9 +18,11 @@ function Body({ url }) {
   const handleInputChange = (event) => {
     setPrompt(event.target.value);
   };
-
+  const handleInputChange2 = (event) => {
+    setHigh(event.target.value);
+  };
   const handleTranslateClick = async () => {
-    setAlertMessage("Loading..")
+    setAlertMessage("Loading...")
     console.log("Translate button clicked");
 
     try {
@@ -68,8 +71,15 @@ function Body({ url }) {
 
   return (
     <div className="p-4">
+      
+      {iframeSrc && (
+        
+        <div className="myclass" ref={divRef}>
 
-      <form className="max-w-sm mx-auto">
+
+      
+<div class="my-32"> 
+<form className="max-w-sm mx-auto">
         <div className="relative z-0 w-full mb-5 group">
           <input
             type="text"
@@ -85,17 +95,39 @@ function Body({ url }) {
             htmlFor="prompt"
             className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
           >
-            Mô tả thể loại và ngôn ngữ
+            Mô tả thể loại và ngôn ngữ để AI chọn phong cách dịch
           </label>
         </div>
-      </form>
 
-      {iframeSrc && (
-        <div className="myclass" ref={divRef}>
+      </form>     
+      <form className="max-w-sm mx-auto">
+        <div className="relative z-0 w-64 mb-5 group">
+          <input
+            type="text"
+            name="high"
+            id="high"
+            value={high}
+            onChange={handleInputChange2}
+            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+            placeholder=" "
+            required
+          />
+          <label
+            htmlFor="high"
+            className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+          >
+            Chiều cao khung truyện (đơn vị px)
+          </label>
+        </div>
+
+        
+      </form>
+      </div>         
+
           <iframe
             src={iframeSrc}
             width="100%"
-            height="500px"
+            height={high}
             style={{ border: "none" }}
             title="Embedded Content"
           />
@@ -116,11 +148,12 @@ function Body({ url }) {
            
             <button
               type="button"
-              className="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 my-2"
+              className="text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-32 mt-6"
               onClick={handleTranslateClick}
             >
               {alertMessage}
             </button>
+            
             
           </div>
         </div>

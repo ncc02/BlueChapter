@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 function Body({ url }) {
   const [iframeSrc, setIframeSrc] = useState("");
   const [prompt, setPrompt] = useState("tu tiên");
-  const [high, setHigh] = useState("500px");
+  const [high, setHigh] = useState("700px");
   const [row, setRow] = useState("90%");
   const [alertMessage, setAlertMessage] = useState("Click vào đây để Vietsub");
   const [alertType, setAlertType] = useState("");
